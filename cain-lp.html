@@ -138,11 +138,17 @@
         .menu-item {
             background-color: var(--card-bg);
             border: 1px solid var(--border);
-            padding: 1.5rem;
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            cursor: pointer;
+        }
+
+        .menu-item a {
+            display: block;
+            padding: 1.5rem;
+            text-decoration: none;
+            color: inherit;
+            height: 100%;
         }
 
         .menu-item:hover {
@@ -150,6 +156,7 @@
             box-shadow: 0 0 20px rgba(158, 0, 253, 0.15);
             transform: translateY(-5px);
         }
+
 
         .menu-item-title {
             font-family: 'Alegreya', serif;
@@ -218,21 +225,27 @@
 
         <div class="menu-items">
             <div class="menu-item">
-                <h2 class="menu-item-title"><a href="cain.html" style="text-decoration: none; color: inherit;">ЭКЗОРЦИСТЫ</a></h2>
-                <span class="menu-item-code">ID: C-0080</span>
-                <p class="menu-item-desc">███ ███████ ███ ██████ █████ ████████</p>
+                <a href="cain.html">
+                    <h2 class="menu-item-title">ЭКЗОРЦИСТЫ</h2>
+                    <span class="menu-item-code">ID: C-0080</span>
+                    <p class="menu-item-desc">███ ███████ ███ ██████ █████ ████████</p>
+                </a>
             </div>
         
             <div class="menu-item">
-                <h2 class="menu-item-title"><a href="cain-shop.html" style="text-decoration: none; color: inherit;">КАТАЛОГ</a></h2>
-                <span class="menu-item-code">ID: C-9880</span>
-                <p class="menu-item-desc">████ ███ ████████ █████ ██ █████████</p>
+                <a href="cain-shop.html">
+                    <h2 class="menu-item-title">КАТАЛОГ</h2>
+                    <span class="menu-item-code">ID: C-9880</span>
+                    <p class="menu-item-desc">████ ███ ████████ █████ ██ █████████</p>
+                </a>
             </div>
         
             <div class="menu-item">
-                <h2 class="menu-item-title"><a href="cain-error.html" style="text-decoration: none; color: inherit;">АРХИВ</a></h2>
-                <span class="menu-item-code">ID: C-0000</span>
-                <p class="menu-item-desc">██████ █████ ██ ███████ ████ ██████</p>
+                <a href="cain-error.html">
+                    <h2 class="menu-item-title">АРХИВ</h2>
+                    <span class="menu-item-code">ID: C-0000</span>
+                    <p class="menu-item-desc">██████ █████ ██ ███████ ████ ██████</p>
+                </a>
             </div>
         </div>
 
