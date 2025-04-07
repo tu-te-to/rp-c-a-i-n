@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>CAIN</title>
+        <!-- Подключаем шрифт Reggae One -->
+        <link rel="preconnect" href="https://fonts.bunny.net">
+<link href="https://fonts.bunny.net/css?family=reggae-one:400|rubik-wet-paint:400" rel="stylesheet" />
+        <style>
+    :root {
+        /* Цветовые переменные */
+        --accent: #9E00FD;
+        --text: #F8FCFE;
+        --bg: #000000;
+        --card-bg: #0d0d0d;
+        --border: #2a2a2a;
+        --consumable: #FF5733;
+        --noticeable: #33FF57;
+        --focus: #3357FF;
+        --cart-bg: #0a0a0a;
+        --tab-bg: #111;
+        --tab-active: #222;
+        --error: #FF3333;
+        --warning-bg: rgba(30, 0, 50, 0.3);
+        --bg-noise: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4QgJDx0NV1/8LAAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlаXRlZCB3aXRoIEdJTVBkLmUHAAADtElEQVRo3u3YS0hUYRjH8d+ZHG0sy7tsJa2wLHRshTBCQyspKaQgWrnpoi6KLyVdRYs2tYwogggKiiggWnURiSiibpqKmJZXNLxMKkqalpnZRafFwXE8Z+Y8Ox7fHywGZv29vP/3nZlhGJRhGJWttpV9Q5QowzDYYRjsKjZEWZbFvGKQZUHGmMlRZ8OFYQYdSD+bWcUkZgJfGOQ8j3hWMMggtZSyiomsYDfwli5qecEgX/INsZFylvGU27znMO85xClOcI1ZPOMgNfwpBDKJJnbxkUaeMJlynrKJbrZwiwk00cYKGvmbL2QqVaxmNSfoopYNbKSOCj6xk6OsoYNKNvM9V8h85tFLFz2UMpXtPGIvj1nOI1Zyn8W0sYhb9OYLuUAlY7jNLD6zkPXsoYpWNnKPappZTRPz2EU7/+QDWcQNFtJOFTu5wwyusYRzLGCAfdzgX6ppYQbH+JUP5DrjGaaSdjZwlUvM5jxVXGMdF5lHM1OpsDR/mi3kHOVcoZKVdNHFVWZymmmcYiGnWcJZVtHBLOrpyxZykkGWcJlyPnCTWtqYzEVmc44KGplJB9XcYCBbSB2zucsAh5lJA03M5CHTaGI+d6jlFdXc5F+2kBqWs4FyXtPIOJpZxmPW0cg63rCDthbQwJtsIRUMUcYXhjibDOAZDZTxkg5K+c5rhvjOIH+yhYwjiEHGMkQZQ8B/KZulNRDvXs4AAAAASUVORK5CYII=');
+    }
+
+    .back-button {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1000;
+        background: rgba(10, 10, 10, 0.7);
+        border: 1px solid var(--accent);
+        color: var(--text);
+        padding: 8px 15px;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .back-button:hover {
+        background: rgba(158, 0, 253, 0.3);
+        box-shadow: 0 0 10px rgba(158, 0, 253, 0.5);
+    }
+    
+body {
+    font-family: 'Courier New', monospace, monospace;
+    background-color: var(--bg);
+    color: var(--text);
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+    font-size: 14px;
+    min-height: 100vh;
+    position: relative;
+}
+
+/* Анимированные надписи */
+.cain-overlay {
+    position: fixed;
+    left: 0;
+    right: 0;
+    height: 80px;
+    background: linear-gradient(90deg, 
+              rgba(0,0,0,0) 0%, 
+              rgba(0,0,0,0.8) 20%, 
+              rgba(0,0,0,0.8) 80%, 
+              rgba(0,0,0,0) 100%);
+    z-index: 100;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.cain-top { top: 0; }
+.cain-bottom { bottom: 0; }
+
+.cain-text {
+    color: rgba(255,255,255,0.15);
+    font-size: 18px;
+    letter-spacing: 8px;
+    white-space: nowrap;
+    animation: scroll 30s linear infinite;
+}
+
+@keyframes scroll {
+    0% { transform: translateX(100%); }
+    100% { transform: translateX(-50%); }
+}
+
+/* Основная структура */
+.shop-wrapper {
+    max-width: 900px;
+    margin: 100px auto;
+    padding: 0 15px;
+    position: relative;
+}
+
+.shop-header {
+    border-bottom: 1px solid var(--accent);
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    position: relative;
+}
+
+.shop-title {
+    font-family: 'Reggae One', cursive;
+    font-size: 4em;
+    color: var(--accent);
+    text-align: center;
+    margin: 20px 0;
+    letter-spacing: 2px;
+    text-shadow: 0 0 10px rgba(158, 0, 253, 0.7);
+}
+
+.shop-subtitle {
+    color: var(--text);
+    margin: 5px 0 0;
+    font-style: italic;
+    text-align: center;
+    font-size: 1em;
+    opacity: 0.8;
+}
+
+/* Система вкладок */
+.tabs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-bottom: 15px;
+}
+
+.tab {
+    padding: 8px 12px;
+    background-color: var(--tab-bg);
+    border: 1px solid var(--border);
+    cursor: pointer;
+    font-size: 1em;
+    flex: 1;
+    text-align: center;
+    min-width: 120px;
+    transition: all 0.2s ease;
+}
+
+.tab:hover {
+    border-color: var(--accent);
+}
+
+.tab.active {
+    background-color: var(--tab-active);
+    border-bottom: 2px solid var(--accent);
+    font-weight: bold;
+}
+
+/* Контент вкладок */
+.tab-content {
+    display: none;
+    animation: fadeIn 0.3s ease;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Карточки товаров */
+.items-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 15px;
+    margin-bottom: 20px;
+}
+
+.item-card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border);
+    padding: 15px;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.item-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 5px 15px rgba(158, 0, 253, 0.1);
+}
+
+.item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 8px;
+}
+
+.item-name {
+    font-size: 1em;
+    font-weight: bold;
+    color: var(--accent);
+    margin: 0;
+    line-height: 1.3;
+}
+
+.item-price {
+    font-family: 'Courier New', monospace;
+    color: var(--text);
+    font-weight: bold;
+    font-size: 1em;
+    white-space: nowrap;
+}
+
+.item-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin: 5px 0 8px;
+}
+
+.tag {
+    padding: 2px 6px;
+    font-size: 1em;
+    border-radius: 3px;
+    font-weight: bold;
+}
+
+.tag-consumable {
+    background-color: var(--consumable);
+    color: black;
+}
+
+.tag-noticeable {
+    background-color: var(--noticeable);
+    color: black;
+}
+
+.tag-focus {
+    background-color: var(--focus);
+    color: white;
+}
+
+.item-description {
+    margin: 0;
+    line-height: 1.5;
+    font-size: 0.95em;
+    color: rgba(248, 252, 254, 0.8);
+}
+
+.item-description em {
+    color: var(--text);
+    font-style: normal;
+    font-weight: bold;
+}
+
+.item-kit {
+    margin-top: 10px;
+    padding-left: 15px;
+    font-size: 0.8em;
+}
+
+.kit-item {
+    margin-bottom: 5px;
+    line-height: 1.4;
+    position: relative;
+}
+
+.kit-item:before {
+    content: "•";
+    color: var(--accent);
+    position: absolute;
+    left: -12px;
+}
+
+.warning-note {
+    background-color: var(--warning-bg);
+    border-left: 3px solid var(--accent);
+    padding: 10px 15px;
+    margin: 15px 0;
+    font-size: 0.9em;
+    line-height: 1.5;
+}
+
+/* Стили корзины */
+.cart-container {
+    background-color: var(--cart-bg);
+    border: 1px solid var(--border);
+    padding: 15px;
+    width: 100%;
+    max-width: 320px;
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    z-index: 50;
+}
+
+.cart-title {
+    color: var(--accent);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    text-align: center;
+    font-size: 1.1em;
+    letter-spacing: 1px;
+    font-weight: bold;
+}
+
+.cart-form {
+    margin-top: 15px;
+}
+
+.form-group {
+    margin-bottom: 12px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 3px;
+    font-size: 0.8em;
+    color: rgba(248, 252, 254, 0.6);
+}
+
+.form-group input {
+    width: 100%;
+    padding: 5px 8px;
+    background-color: var(--tab-bg);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+}
+
+.form-group input:focus {
+    outline: 2px solid var(--accent);
+}
+
+.cart-items {
+    max-height: 200px;
+    overflow-y: auto;
+    margin-bottom: 15px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 15px;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent) var(--border);
+}
+
+.cart-items::-webkit-scrollbar {
+    width: 5px;
+}
+
+.cart-items::-webkit-scrollbar-track {
+    background: var(--border);
+}
+
+.cart-items::-webkit-scrollbar-thumb {
+    background-color: var(--accent);
+    border-radius: 3px;
+}
+
+.cart-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 0.85em;
+    padding: 5px;
+    background-color: rgba(255,255,255,0.03);
+}
+
+.cart-item-name {
+    flex: 1;
+    margin-right: 10px;
+}
+
+.cart-total {
+    font-weight: bold;
+    text-align: right;
+    margin-bottom: 15px;
+    font-size: 1em;
+}
+
+.purchase-btn {
+    width: 100%;
+    padding: 10px;
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    font-size: 0.9em;
+    margin-top: 10px;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.purchase-btn:hover {
+    background-color: #7d00c7;
+    transform: translateY(-2px);
+}
+
+.purchase-btn:active {
+    transform: translateY(0);
+}
+
+.denied-notice {
+    display: none;
+    margin-top: 12px;
+    padding: 10px;
+    background-color: rgba(255, 51, 51, 0.1);
+    border: 1px solid var(--error);
+    color: var(--error);
+    text-align: center;
+    font-size: 0.85em;
+    font-weight: bold;
+    animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-3px); }
+    20%, 40%, 60%, 80% { transform: translateX(3px); }
+}
+
+.remove-from-cart {
+    background-color: var(--consumable);
+    color: black;
+    border: none;
+    padding: 2px 6px;
+    cursor: pointer;
+    font-size: 0.8em;
+    margin-left: 8px;
+    font-weight: bold;
+    transition: opacity 0.2s;
+}
+
+.remove-from-cart:hover {
+    opacity: 0.8;
+}
+
+/* Адаптивность */
+@media (max-width: 768px) {
+    .shop-wrapper {
+        margin: 80px auto;
+    }
+    
+    .tabs {
+        flex-direction: column;
+    }
+    
+    .cart-container {
+        position: static;
+        max-width: 100%;
+        margin-top: 20px;
+    }
+    
+    .items-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Микро-анимации */
+.add-to-cart {
+    position: absolute;
+    bottom: 10px;
+    right: 10px;
+    width: 30px;
+    height: 30px;
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s ease;
+}
+
+.add-to-cart:hover {
+    transform: scale(1.1);
+}
+
+.content-protection {
+    position: relative;
+    z-index: 10;
+}
+    </style>
+</head>
+<body>
+    <!-- Добавленная кнопка назад -->
+    <a href="cain-lp.html" class="back-button">← НАЗАД</a>
+
+    <div class="cain-overlay cain-top">
+        <div class="cain-text">CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN</div>
+    </div>
+
+    <!-- Корзина -->
+    <div class="cart-container">
+        <h3 class="cart-title">ФОРМА ЗАЯВКИ №CAIN-<span id="request-id">0000</span></h3>
+        
+        <div class="cart-items" id="cart-items">
+            <!-- Товары будут добавляться сюда -->
+        </div>
+        
+        <div class="cart-total">
+            Всего к оплате: <span id="cart-total">0</span> █$█
+        </div>
+        
+        <div class="cart-form">
+            <div class="form-group">
+                <label>ИДЕНТИФИКАТОР ЭКЗОРЦИСТА (XID):</label>
+                <input type="text" id="xid-input" placeholder="Введите ваш XID">
+            </div>
+            
+            <div class="form-group">
+                <label>КАТЕГОРИЯ ДОСТУПА (КАТ):</label>
+                <input type="text" id="kat-input" placeholder="Введите ваш КАТ">
+            </div>
+            
+            <div class="form-group">
+                <label>ПРИЧИНА ЗАПРОСА:</label>
+                <input type="text" id="reason-input" placeholder="Укажите причину запроса">
+            </div>
+            
+            <button class="purchase-btn" id="purchase-btn">ПОДАТЬ НА РАССМОТРЕНИЕ</button>
+            
+            <div class="denied-notice" id="denied-notice">
+                ОТКАЗАНО. ОБРАТИТЕСЬ НАПРЯМУЮ К АДМИНИСТРАТОРУ
+            </div>
+        </div>
+    </div>
+
+    <div class="shop-wrapper content-protection">
+        <header class="shop-header">
+            <h1 class="shop-title">КАТАЛОГ</h1>
+            <p class="shop-subtitle">Покупка и распределение ресурсов между миссиями</p>
+        </header>
+        
+        <div class="shop-intro">
+            <p>Внизу приведены предметы, покупаемые за scrip █$█. Купленные предметы перманентно добавлены в ваш набор во время миссии и их можно доставать, тратя <strong>очки набора</strong>.</p>
+            <p>Scrip можно тратить только между миссий. Если только предмет не расходуемый, его можно купить всего единожды.</p>
+        </div>
+        
+        <div class="warning-note">
+            <p><strong>Обозначения:</strong><br>
+            <span class="tag tag-consumable">Расходуемый</span> - Пропадает после использования. Можно купить несколько копий.<br>
+            <span class="tag tag-noticeable">Заметный</span> - Предмет выделяется. Его тяжело спрятать.<br>
+            <span class="tag tag-focus">Фокус</span> - Требует сосредоточения. Нельзя применять во время другой активности или опасной ситуации.</p>
+        </div>
+        
+        <!-- Вкладки -->
+        <div class="tabs">
+            <div class="tab active" data-tab="aesthetic">ЭСТЕТИКА</div>
+            <div class="tab" data-tab="comfort">КОМФОРТ/КАРЬЕРА</div>
+            <div class="tab" data-tab="property">ИМУЩЕСТВО</div>
+            <div class="tab" data-tab="occult">ОККУЛЬТНЫЙ/МЕД.</div>
+        </div>
+        
+        <!-- Содержимое вкладок -->
+        <div id="aesthetic" class="tab-content">
+            <div class="warning-note">
+                <p>У Эстетических предметов нет механического преимущества. Все требуют 0 ОН.<br>
+                Дресс-код КАИНа строго регулируется (смотрите доктрину ЗАМОК c9800)</p>
+            </div>
+            
+            <div class="items-grid">
+                <!-- Обмундирование -->
+                <div class="item-card" data-name="Обмундирование" data-price="1">
+                    <div class="item-header">
+                        <h3 class="item-name">Обмундирование</h3>
+                        <div class="item-price">1 █$█</div>
+                    </div>
+                    <p class="item-description">Выдаётся ряса или облачение под размер. Сделана из очень хорошего и удобного материала. По желанию включает в себя покрытие головы или лица для скромного ношения.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Комфортные ботинки -->
+                <div class="item-card" data-name="Комфортные ботинки" data-price="1">
+                    <div class="item-header">
+                        <h3 class="item-name">Комфортные ботинки</h3>
+                        <div class="item-price">1 █$█</div>
+                    </div>
+                    <p class="item-description">Подходящие по размеру ботинки. Производится по доступности.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Костюм -->
+                <div class="item-card" data-name="Костюм" data-price="3">
+                    <div class="item-header">
+                        <h3 class="item-name">Костюм</h3>
+                        <div class="item-price">3 █$█</div>
+                    </div>
+                    <p class="item-description">Высококачественный костюм. Доступный только экзорцистам КАТ 2+.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Повседневная одежда -->
+                <div class="item-card" data-name="Повседневная одежда" data-price="4">
+                    <div class="item-header">
+                        <h3 class="item-name">Повседневная одежда</h3>
+                        <div class="item-price">4 █$█</div>
+                    </div>
+                    <p class="item-description">Санкционированная повседневная одежда, обходящая ограничения дресс-кода КАИНа вне рабочее время. Не для ношения на миссию. Доступна только экзорцистам КАТ 3+.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Парадный наряд -->
+                <div class="item-card" data-name="Парадный наряд" data-price="6">
+                    <div class="item-header">
+                        <h3 class="item-name">Парадный наряд</h3>
+                        <div class="item-price">6 █$█</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="tag tag-noticeable">Заметный</span>
+                    </div>
+                    <p class="item-description">Санкционированный парадный наряд для организационных мероприятий. Отличного качества. Не допускается для использования в полевых условиях. Включает надбавку для драгоценностей. Доступен только экзорцистам КАТ 2+.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- "Хорошее" Пальто -->
+                <div class="item-card" data-name="Хорошее пальто" data-price="4">
+                    <div class="item-header">
+                        <h3 class="item-name">"Хорошее" Пальто</h3>
+                        <div class="item-price">4 █$█</div>
+                    </div>
+                    <p class="item-description">Пальто, подходящее всем униформам. Защищено от погоды, сделано вручную, и ещё оно высочайшего качества. Есть опции для персонализации. Доступно только экзорцистам КАТ 4+.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Парадная униформа -->
+                <div class="item-card" data-name="Парадная униформа" data-price="3">
+                    <div class="item-header">
+                        <h3 class="item-name">Парадная униформа</h3>
+                        <div class="item-price">3 █$█</div>
+                    </div>
+                    <p class="item-description">Парадная униформа включающая в себя короткий плащ, изначально создана для церемониальных мероприятий. Доступна только экзорцистам КАТ 3+.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+            </div>
+        </div>
+        
+
+        <div id="comfort" class="tab-content">
+            <div class="warning-note">
+                <p>Личные пособия в соответствии с доктриной ЗАМКА c9880.</p>
+            </div>
+            
+            <div class="items-grid">
+                <!-- Расширение жилого помещения -->
+                <div class="item-card" data-name="Расширение жилого помещения" data-price="6">
+                    <div class="item-header">
+                        <h3 class="item-name">Расширение жилого помещения</h3>
+                        <div class="item-price">6 █$█</div>
+                    </div>
+                    <p class="item-description"><em>Мини-кухня, два предмета мебели. Окно.</em><br>
+                    Получите преимущества отдыха раз за миссию, не повышая талисман Давления.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Личная комната -->
+                <div class="item-card" data-name="Личная комната" data-price="8">
+                    <div class="item-header">
+                        <h3 class="item-name">Личная комната</h3>
+                        <div class="item-price">8 █$█</div>
+                    </div>
+                    <p class="item-description"><em>Комната, доступная экзорцистам КАТ 3+.</em><br>
+                    +1 максимальный стресс.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Право на посещение -->
+                <div class="item-card" data-name="Право на посещение" data-price="12">
+                    <div class="item-header">
+                        <h3 class="item-name">Право на посещение</h3>
+                        <div class="item-price">12 █$█</div>
+                    </div>
+                    <p class="item-description"><em>Расширенные права отгула для посещения потенциальной семьи или близких под наблюдением.</em><br>
+                    +1 максимальное ранение.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Смягчение правил для стрижки -->
+                <div class="item-card" data-name="Смягчение правил для стрижки" data-price="6">
+                    <div class="item-header">
+                        <h3 class="item-name">Смягчение правил для стрижки</h3>
+                        <div class="item-price">6 █$█</div>
+                    </div>
+                    <p class="item-description"><em>Разрешение для ношения причёсок, запрещённых ЗАМКОМ, и так же позволяет надбавки в виде украшений или косметики.</em><br>
+                    +2 ограничению перегруза греха.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Улучшенная система питания -->
+                <div class="item-card" data-name="Улучшенная система питания" data-price="4">
+                    <div class="item-header">
+                        <h3 class="item-name">Улучшенная система питания</h3>
+                        <div class="item-price">4 █$█</div>
+                    </div>
+                    <p class="item-description"><em>Переход на систему питания "B".</em><br>
+                    +1 максимальные ОН.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Санкционированные поблажки -->
+                <div class="item-card" data-name="Санкционированные поблажки" data-price="1" data-consumable="true">
+                    <div class="item-header">
+                        <h3 class="item-name">Санкционированные поблажки</h3>
+                        <div class="item-price">1 █$█</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="tag tag-consumable">Расходуемый</span>
+                    </div>
+                    <p class="item-description"><em>Небольшие поблажки, санкционированные ЗАМКОМ. Сигареты, кофе, конфеты, жвачка, карманные деньги.</em><br>
+                    При отдыхе вы бросаете дополнительную кость.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Отпуск -->
+                <div class="item-card" data-name="Отпуск" data-price="15">
+                    <div class="item-header">
+                        <h3 class="item-name">Отпуск</h3>
+                        <div class="item-price">15 █$█</div>
+                    </div>
+                    <p class="item-description"><em>Вам позволен недельный отпуск один раз в год со средствами для путешествия.</em><br>
+                    Вы получаете +1 максимальный стресс, +1 ОН и +1 ограничение перегруза греха.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Кусочки Серебра -->
+                <div class="item-card" data-name="Кусочки Серебра" data-price="44">
+                    <div class="item-header">
+                        <h3 class="item-name">Кусочки Серебра</h3>
+                        <div class="item-price">44 █$█</div>
+                    </div>
+                    <p class="item-description"><em>Вам позволено уйти из экзорцизма. Работа продолжается. Вы можете работать в КАИНе в одном из множества филиалов на административной должности до конца жизни, с потенциалом для повышения.</em></p>
+                    <button class="add-to-cart">+</button>
+                </div>
+            </div>
+        </div>
+        
+
+        <div id="property" class="tab-content">
+            <div class="warning-note">
+                <p>Санкционированные или несанкционированные поблажки для личного имущества, которые часто появляются во время занятия случайной работой вне служебное время. Некоторые предметы объединены в набор. Когда у вас есть доступ к набору, вы можете потратить 1 ОН для доставания одного предмета из списка набора.</p>
+            </div>
+            
+            <div class="items-grid">
+                <!-- Телефон -->
+                <div class="item-card" data-name="Телефон" data-price="1">
+                    <div class="item-header">
+                        <h3 class="item-name">Телефон</h3>
+                        <div class="item-price">1 █$█</div>
+                    </div>
+                    <p class="item-description"><em>Личный телефон. Вы можете вместо этого заплатить 3 █$█ и получить телефон с большим количеством опций и доступом к интернету.</em></p>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Карта -->
+                <div class="item-card" data-name="Карта с деньгами" data-price="1">
+                    <div class="item-header">
+                        <h3 class="item-name">Карта с деньгами</h3>
+                        <div class="item-price">1 █$█</div>
+                    </div>
+                    <p class="item-description"><em>Карта, работающая с почти всеми валютами в мире. На счету есть достаточно для обычных покупок, но не достаточно для покупки чего-то важного.</em></p>
+                    <button class="add-to-cart">+</button>
+                </div>
+                
+                <!-- Жреческий набор -->
+                <div class="item-card" data-name="Жреческий набор" data-price="4">
+                    <div class="item-header">
+                        <h3 class="item-name">Жреческий набор</h3>
+                        <div class="item-price">4 █$█</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="tag tag-focus">Фокус</span>
+                    </div>
+                    <p class="item-description"><em>Официальный набор для жреческой и исследовательской работы.</em></p>
+                    <div class="item-kit">
+                        <div class="kit-item">Копия альманаха ПРОРОКа (2 ОН)</div>
+                        <div class="kit-item">Очки высокого качества</div>
+                        <div class="kit-item">Качественные ручки</div>
+                        <div class="kit-item">Толстая папка</div>
+                        <div class="kit-item">Исторические заметки</div>
+                    </div>
+                    <button class="add-to-cart">+</button>
+                </div>
+
+                <!-- Набор уборщика -->
+                <div class="item-card" data-name="Набор уборщика" data-price="4">
+                    <div class="item-header">
+                        <h3 class="item-name">Набор уборщика</h3>
+                        <div class="item-price">4 █$█</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="tag tag-noticeable">Заметный</span>
+                    </div>
+                    <p class="item-description"><em>Для уборки последствий охот. Гнусная работа.</em></p>
+                    <div class="item-kit">
+                        <div class="kit-item">Водонепроницаемый комбинезон</div>
+                        <div class="kit-item">Противогаз</div>
+                        <div class="kit-item">Тяжелые перчатки</div>
+                        <div class="kit-item">Антитоксин (разовое применение, 2 ОН)</div>
+                    </div>
+                    <button class="add-to-cart">+</button>
+                </div>
+                
+                <!-- Набор хулигана -->
+                <div class="item-card" data-name="Набор хулигана" data-price="3">
+                    <div class="item-header">
+                        <h3 class="item-name">Набор хулигана</h3>
+                        <div class="item-price">3 █$█</div>
+                    </div>
+                    <p class="item-description"><em>Несанкционированный комиссариатом, черный рынок.</em></p>
+                    <div class="item-kit">
+                        <div class="kit-item">Карманный нож</div>
+                        <div class="kit-item">Зажигалка и сигареты</div>
+                        <div class="kit-item">Заколки и лак для волос</div>
+                        <div class="kit-item">Сапожный нож</div>
+                    </div>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Набор водителя -->
+                <div class="item-card" data-name="Набор водителя" data-price="8">
+                    <div class="item-header">
+                        <h3 class="item-name">Набор водителя</h3>
+                        <div class="item-price">8 █$█</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="tag tag-noticeable">Заметный</span>
+                    </div>
+                    <p class="item-description"><em>Высококачественные перчатки (1 ОН) и доступ к машине (тал. 4 вреда). Штраф 2 █$█ за уничтожение.</em></p>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Полевой набор -->
+                <div class="item-card" data-name="Полевой набор" data-price="4">
+                    <div class="item-header">
+                        <h3 class="item-name">Полевой набор</h3>
+                        <div class="item-price">4 █$█</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="tag tag-noticeable">Заметный</span>
+                    </div>
+                    <p class="item-description"><em>Для наблюдения на месте.</em></p>
+                    <div class="item-kit">
+                        <div class="kit-item">Водонепроницаемый журнал</div>
+                        <div class="kit-item">Всепогодный плащ</div>
+                        <div class="kit-item">Тент и спальник (3 ОН)</div>
+                        <div class="kit-item">Оптический прицел</div>
+                    </div>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Набор мусорщика -->
+                <div class="item-card" data-name="Набор мусорщика" data-price="3">
+                    <div class="item-header">
+                        <h3 class="item-name">Набор мусорщика</h3>
+                        <div class="item-price">3 █$█</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="tag tag-noticeable">Заметный</span>
+                    </div>
+                    <p class="item-description"><em>Собранный по частям.</em></p>
+                    <div class="item-kit">
+                        <div class="kit-item">Инструменты (отвертки, монтировка)</div>
+                        <div class="kit-item">Канцелярские принадлежности</div>
+                        <div class="kit-item">Кабели и зажимы</div>
+                        <div class="kit-item">Жвачка и прочие мелочи</div>
+                    </div>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Набор охранника -->
+                <div class="item-card" data-name="Набор охранника" data-price="4">
+                    <div class="item-header">
+                        <h3 class="item-name">Набор охранника</h3>
+                        <div class="item-price">4 █$█</div>
+                    </div>
+                    <p class="item-description"><em>Для работы на складах КАИНа.</em></p>
+                    <div class="item-kit">
+                        <div class="kit-item">Двустороннее радио</div>
+                        <div class="kit-item">Сверхмощный фонарик</div>
+                        <div class="kit-item">Светошумовая граната (2 ОН)</div>
+                        <div class="kit-item">Электрошокер</div>
+                    </div>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Набор морга -->
+                <div class="item-card" data-name="Набор морга" data-price="4">
+                    <div class="item-header">
+                        <h3 class="item-name">Набор морга</h3>
+                        <div class="item-price">4 █$█</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="tag tag-focus">Фокус</span>
+                    </div>
+                    <p class="item-description"><em>Для криминалистики на засекреченных телах.</em></p>
+                    <div class="item-kit">
+                        <div class="kit-item">Хирургические инструменты</div>
+                        <div class="kit-item">Увеличительный прибор</div>
+                        <div class="kit-item">Антитоксин и респиратор</div>
+                        <div class="kit-item">Собиратель образцов</div>
+                    </div>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Набор носильщика -->
+                <div class="item-card" data-name="Набор носильщика" data-price="4">
+                    <div class="item-header">
+                        <h3 class="item-name">Набор носильщика</h3>
+                        <div class="item-price">4 █$█</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="tag tag-noticeable">Заметный</span>
+                    </div>
+                    <p class="item-description"><em>Для работы в пещерных объектах.</em></p>
+                    <div class="item-kit">
+                        <div class="kit-item">Надёжный рюкзак</div>
+                        <div class="kit-item">Альпинистское снаряжение</div>
+                        <div class="kit-item">10м прочного шнура</div>
+                        <div class="kit-item">Мощный фонарик</div>
+                    </div>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Учебный набор -->
+                <div class="item-card" data-name="Учебный набор" data-price="3">
+                    <div class="item-header">
+                        <h3 class="item-name">Учебный набор</h3>
+                        <div class="item-price">3 █$█</div>
+                    </div>
+                    <p class="item-description"><em>Для продолжения обучения во время работы.</em></p>
+                    <div class="item-kit">
+                        <div class="kit-item">Учебники (2 ОН)</div>
+                        <div class="kit-item">Электронный словарь</div>
+                        <div class="kit-item">Карты и пособия</div>
+                        <div class="kit-item">Канцелярские принадлежности</div>
+                    </div>
+                    <button class="add-to-cart">+</button>
+                </div>
+        
+                <!-- Набор смотрителя -->
+                <div class="item-card" data-name="Набор смотрителя" data-price="3">
+                    <div class="item-header">
+                        <h3 class="item-name">Набор смотрителя</h3>
+                        <div class="item-price">3 █$█</div>
+                    </div>
+                    <p class="item-description"><em>Для охраны чувствительных объектов СМЕЛОСТИ.</em></p>
+                    <div class="item-kit">
+                        <div class="kit-item">Святое писание (2 ОН)</div>
+                        <div class="kit-item">Молитвенные артефакты</div>
+                        <div class="kit-item">Стандартный большой кинжал</div>
+                        <div class="kit-item">Экстренные средства</div>
+                    </div>
+                    <button class="add-to-cart">+</button>
+                </div>
+            </div>
+        </div>
+        
+        
+
+        
+        <div id="occult" class="tab-content">
+            <div class="warning-note">
+                <p>Оккультные и медицинские предметы для особых случаев. Все предметы требуют ОН для использования.</p>
+            </div>
+            
+            <div class="items-grid">
+                <!-- Клиппот -->
+                <div class="item-card" data-name="Клиппот" data-price="2" data-consumable="true">
+                    <div class="item-header">
+                        <h3 class="item-name">Клиппот</h3>
+                        <div class="item-price">2 █$█</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="tag tag-consumable">Расходуемый</span>
+                    </div>
+                    <p class="item-description"><em>1 ОН</em><br>
+                    Проклятый фрукт древа Ймир.<br>
+                    Сомните для восстановления 3 психических всплесков.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+                
+                <!-- Зелёное растение -->
+                <div class="item-card" data-name="Зелёное растение" data-price="2" data-consumable="true">
+                    <div class="item-header">
+                        <h3 class="item-name">Зелёное растение</h3>
+                        <div class="item-price">2 █$█</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="tag tag-consumable">Расходуемый</span>
+                        <span class="tag tag-focus">Фокус</span>
+                    </div>
+                    <p class="item-description"><em>1 ОН</em><br>
+                    Употребите для восстановления 1d3 стресса.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+                
+                <!-- Красное растение -->
+                <div class="item-card" data-name="Красное растение" data-price="3" data-consumable="true">
+                    <div class="item-header">
+                        <h3 class="item-name">Красное растение</h3>
+                        <div class="item-price">3 █$█</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="tag tag-consumable">Расходуемый</span>
+                        <span class="tag tag-focus">Фокус</span>
+                    </div>
+                    <p class="item-description"><em>2 ОН</em><br>
+                    Употребите для восстановления 2d3+1 стресса.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+                
+                <!-- Семя древа Ймир -->
+                <div class="item-card" data-name="Семя древа Ймир" data-price="4" data-consumable="true">
+                    <div class="item-header">
+                        <h3 class="item-name">Семя древа Ймир</h3>
+                        <div class="item-price">4 █$█</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="tag tag-consumable">Расходуемый</span>
+                    </div>
+                    <p class="item-description"><em>2 ОН</em><br>
+                    Во время отдыха потратьте две кости отдыха для излечения ранения.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+                
+                <!-- Медицина чёрной крови -->
+                <div class="item-card" data-name="Медицина чёрной крови" data-price="4" data-consumable="true">
+                    <div class="item-header">
+                        <h3 class="item-name">Медицина чёрной крови</h3>
+                        <div class="item-price">4 █$█</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="tag tag-consumable">Расходуемый</span>
+                    </div>
+                    <p class="item-description"><em>2 ОН</em><br>
+                    Возрождает мёртвого экзорциста с целым телом. Возвращается с 2 ранениями, все действия трудны до отдыха.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+                
+                <!-- Чёрное тельце -->
+                <div class="item-card" data-name="Чёрное тельце" data-price="3" data-consumable="true">
+                    <div class="item-header">
+                        <h3 class="item-name">Чёрное тельце</h3>
+                        <div class="item-price">3 █$█</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="tag tag-consumable">Расходуемый</span>
+                    </div>
+                    <p class="item-description"><em>1 ОН</em><br>
+                    Сжатое семя греха. Снижает грех на 3d3, но навсегда -1 к ограничению перегруза греха.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+                
+                <!-- Проклятая соль -->
+                <div class="item-card" data-name="Проклятая соль" data-price="2" data-consumable="true">
+                    <div class="item-header">
+                        <h3 class="item-name">Проклятая соль</h3>
+                        <div class="item-price">2 █$█</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="tag tag-consumable">Расходуемый</span>
+                    </div>
+                    <p class="item-description"><em>1 ОН</em><br>
+                    При распылении предотвращает вход людям в область размером с комнату до повышения давления.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+                
+                <!-- Амброзия -->
+                <div class="item-card" data-name="Амброзия" data-price="4" data-consumable="true">
+                    <div class="item-header">
+                        <h3 class="item-name">Амброзия</h3>
+                        <div class="item-price">4 █$█</div>
+                    </div>
+                    <div class="item-tags">
+                        <span class="tag tag-consumable">Расходуемый</span>
+                    </div>
+                    <p class="item-description"><em>2 ОН</em><br>
+                    Даёт +1 к максимальному и текущему психическому всплеску. Эффект не складывается, длится до конца миссии.</p>
+                    <button class="add-to-cart">+</button>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+            // Корзина
+            let cart = [];
+            let requestCounter = 1000; // Счетчик для номера заявки
+            
+            // Инициализация корзины при загрузке
+            document.addEventListener('DOMContentLoaded', function() {
+                generateRequestId();
+            });
+            
+            // Обработчики для вкладок
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', function() {
+                    // Убираем активный класс у всех вкладок
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    // Убираем активный класс у всех контентов
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    
+                    // Добавляем активный класс текущей вкладке
+                    this.classList.add('active');
+                    // Показываем соответствующий контент
+                    const tabId = this.getAttribute('data-tab');
+                    document.getElementById(tabId).classList.add('active');
+                });
+            });
+            
+            // Обработчики для кнопок "Добавить"
+            document.querySelectorAll('.add-to-cart').forEach(button => {
+                button.addEventListener('click', function() {
+                    const itemCard = this.closest('.item-card');
+                    const itemName = itemCard.dataset.name;
+                    const itemPrice = parseInt(itemCard.dataset.price);
+                    const isConsumable = itemCard.dataset.consumable === 'true';
+                    
+                    if (!isConsumable && cart.some(item => item.name === itemName)) {
+                        alert('Этот предмет можно купить только один раз');
+                        return;
+                    }
+                    
+                    cart.push({ name: itemName, price: itemPrice });
+                    updateCart();
+                });
+            });
+            
+            // Обновление корзины
+            function updateCart() {
+                const cartItemsElement = document.getElementById('cart-items');
+                cartItemsElement.innerHTML = '';
+        
+                cart.forEach((item, index) => {
+                    const itemElement = document.createElement('div');
+                    itemElement.className = 'cart-item';
+                    itemElement.innerHTML = `
+                        <div class="cart-item-name">${item.name}</div>
+                        <div>${item.price} █$█ <button class="remove-from-cart" data-index="${index}">×</button></div>
+                    `;
+                    cartItemsElement.appendChild(itemElement);
+                });
+        
+                document.querySelectorAll('.remove-from-cart').forEach(button => {
+                    button.addEventListener('click', function() {
+                        cart.splice(parseInt(this.dataset.index), 1);
+                        updateCart();
+                    });
+                });
+        
+                document.getElementById('cart-total').textContent = 
+                    cart.reduce((sum, item) => sum + item.price, 0);
+            }
+            
+            // Генерация случайного ID заявки
+            function generateRequestId() {
+                requestCounter++;
+                document.getElementById('request-id').textContent = requestCounter.toString().padStart(4, '0');
+            }
+            
+            // Обработчик кнопки покупки
+            document.getElementById('purchase-btn').addEventListener('click', function() {
+                const xid = document.getElementById('xid-input').value.trim();
+                const kat = document.getElementById('kat-input').value.trim();
+                const reason = document.getElementById('reason-input').value.trim();
+                const deniedNotice = document.getElementById('denied-notice');
+                
+                // Скрываем предыдущее уведомление
+                deniedNotice.style.display = 'none';
+                
+                // Валидация полей
+                if (!xid || !kat) {
+                    alert('ПОЛЯ XID И КАТ ДОЛЖНЫ БЫТЬ ЗАПОЛНЕНЫ');
+                    return;
+                }
+                
+                // Проверка категории (1-9)
+                if (!/^[1-9]$/.test(kat)) {
+                    alert('НЕВЕРНАЯ КАТЕГОРИЯ. ДОПУСТИМЫЕ ЗНАЧЕНИЯ: 1-9');
+                    return;
+                }
+                
+                // Всегда показываем отказ после задержки (для эффекта)
+                setTimeout(() => {
+                    deniedNotice.style.display = 'block';
+                    generateRequestId(); // Генерируем новый ID для следующей заявки
+                    
+                    // Можно добавить логгирование запроса
+                    console.log(`Запрос отклонен: XID:${xid} КАТ:${kat} Причина:${reason} Сумма:${document.getElementById('cart-total').textContent} █$█`);
+                    
+                }, 1500); // Задержка для имитации обработки
+            });
+            
+            // Автоматическая валидация поля XID
+            document.getElementById('xid-input').addEventListener('input', function(e) {
+                this.value = this.value.toUpperCase().replace(/[^A-Z0-9-]/g, '');
+            });
+            
+            // Автоматическая валидация поля КАТ
+            document.getElementById('kat-input').addEventListener('input', function(e) {
+                this.value = this.value.replace(/[^1-9]/g, '');
+            });
+        </script>        
+</body>
+</html>

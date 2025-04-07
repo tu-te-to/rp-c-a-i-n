@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ACCESS DENIED</title>
+    <!-- Подключаем шрифт Blaka -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Blaka&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #9E00FD;
+            --text: #F8FCFE;
+            --bg: #000;
+            --error: #ffffff;
+            --bg-noise: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4QgJDx0NV1/8LAAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAADtElEQVRo3u3YS0hUYRjH8d+ZHG0sy7tsJa2wLHRshTBCQyspKaQgWrnpoi6KLyVdRYs2tYwogggKiiggWnURiSiibpqKmJZXNLxMKkqalpnZRafFwXE8Z+Y8Ox7fHywGZv29vP/3nZlhGJRhGJWttpV9Q5QowzDYYRjsKjZEWZbFvGKQZUHGmMlRZ8OFYQYdSD+bWcUkZgJfGOQ8j3hWMMggtZSyiomsYDfwli5qecEgX/INsZFylvGU27znMO85xClOcI1ZPOMgNfwpBDKJJnbxkUaeMJlynrKJbrZwiwk00cYKGvmbL2QqVaxmNSfoopYNbKSOCj6xk6OsoYNKNvM9X8h85tFLFz2UMpXtPGIvj1nOI1Zyn8W0sYhb9OYLuUAlY7jNLD6zkPXsoYpWNnKPappZTRPz2EU7/+QDWcQNFtJOFTu5wwyusYRzLGCAfdzgX6ppYQbH+JUP5DrjGaaSdjZwlUvM5jxVXGMdF5lHM1OpsDR/mi3kHOVcoZKVdNHFVWZymmmcYiGnWcJZVtHBLOrpyxZykkGWcJlyPnCTWtqYzEVmc44KGplJB9XcYCBbSB2zucsAh5lJA03M5CHTaGI+d6jlFdXc5F+2kBqWs4FyXtPIOJpZxmPW0cg63rCDThbQwJtsIRUMUcYXhjibDOAZDZTxkg5K+c5rhvjOIH+yhYwjiEHGMkQZQ8B/KZulNRDvXs4AAAAASUVORK5CYII=');
+        }
+
+        .back-button {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        z-index: 1000;
+        background: rgba(10, 10, 10, 0.7);
+        border: 1px solid var(--accent);
+        color: var(--text);
+        padding: 8px 15px;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+    }
+
+    .back-button:hover {
+        background: rgba(158, 0, 253, 0.3);
+        box-shadow: 0 0 10px rgba(158, 0, 253, 0.5);
+    }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Courier New', monospace;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        .error-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .noise-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: var(--bg-noise);
+            opacity: 0.1;
+            z-index: -1;
+            animation: noise 0.5s infinite alternate;
+        }
+
+        @keyframes noise {
+            0% { background-position: 0 0; }
+            10% { background-position: -5% -5%; }
+            20% { background-position: -10% 5%; }
+            30% { background-position: 5% -10%; }
+            40% { background-position: -5% 15%; }
+            50% { background-position: -10% 5%; }
+            60% { background-position: 15% 0; }
+            70% { background-position: 0 10%; }
+            80% { background-position: -15% 0; }
+            90% { background-position: 10% 5%; }
+            100% { background-position: 5% 0; }
+        }
+
+        .glitch-effect {
+            position: relative;
+            font-size: 4rem; /* Увеличим размер для лучшей читаемости Blaka */
+            font-family: 'Blaka', sans-serif; /* Применяем шрифт Blaka */
+            color: var(--error);
+            text-transform: uppercase;
+            letter-spacing: 2px; /* Уменьшим межбуквенное расстояние для Blaka */
+            margin-bottom: 2rem;
+            animation: glitch 3s infinite;
+            line-height: 1;
+            text-shadow: 0 0 10px rgba(255, 51, 51, 0.7);
+        }
+
+        @keyframes glitch {
+            0%, 100% { 
+                text-shadow: 0.05em 0 0 #00fffc, 
+                            -0.05em -0.025em 0 #ff00ff,
+                            0 0 10px rgba(255, 51, 51, 0.7); 
+            }
+            14% { 
+                text-shadow: 0.05em 0 0 #00fffc, 
+                            -0.05em -0.025em 0 #ff00ff,
+                            0 0 10px rgba(255, 51, 51, 0.7);
+            }
+            15% { 
+                text-shadow: -0.05em -0.025em 0 #00fffc, 
+                            0.025em 0.035em 0 #ff00ff,
+                            0 0 15px rgba(255, 51, 51, 0.8); 
+            }
+            49% { 
+                text-shadow: -0.05em -0.025em 0 #00fffc, 
+                            0.025em 0.035em 0 #ff00ff,
+                            0 0 15px rgba(255, 51, 51, 0.8); 
+            }
+            50% { 
+                text-shadow: 0.025em 0.035em 0 #00fffc, 
+                            0.05em 0 0 #ff00ff,
+                            0 0 20px rgba(255, 51, 51, 0.9); 
+            }
+            99% { 
+                text-shadow: 0.025em 0.035em 0 #00fffc, 
+                            0.05em 0 0 #ff00ff,
+                            0 0 20px rgba(255, 51, 51, 0.9); 
+            }
+        }
+
+        /* Остальные стили остаются без изменений */
+        .message-code {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: var(--accent);
+            font-family: 'Courier New', monospace;
+        }
+
+        .access-status {
+            position: relative;
+            font-size: 1.5rem;
+            margin-bottom: 2rem;
+            color: var(--text);
+            opacity: 0.8;
+            animation: flicker 5s infinite;
+            font-family: 'Courier New', monospace;
+        }
+
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 0.8; }
+            20%, 22%, 24%, 55% { opacity: 0.4; }
+        }
+
+        .error-details {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 1rem;
+            background-color: rgba(158, 0, 253, 0.1);
+            border-left: 3px solid var(--accent);
+            font-family: 'Courier New', monospace;
+        }
+
+        .terminal-output {
+            text-align: left;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            font-family: 'Courier New', monospace;
+        }
+
+        .cursor {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+        .login-prompt {
+            margin-top: 2rem;
+            font-size: 1rem;
+            opacity: 0.6;
+            font-family: 'Courier New', monospace;
+        }
+
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0) 50%,
+                rgba(255, 255, 255, 0.02) 51%
+            );
+            background-size: 100% 4px;
+            z-index: -1;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+        <!-- Добавленная кнопка назад -->
+        <a href="cain-lp.html" class="back-button">← НАЗАД</a>
+    <div class="scanlines"></div>
+    <div class="noise-overlay"></div>
+    
+    <div class="error-container">
+        <div class="glitch-effect">ACCESS DENIED</div>
+        <div class="message-code"><a href="lol.html" style="text-decoration: none; color: inherit;">ERROR CODE: 19-6-18-30-7-9-15-16-?</a></div>
+        <div class="access-status">SECURITY PROTOCOLS ACTIVATED</div>
+        
+        <div class="error-details">
+            <div class="terminal-output">
+                > INITIATING SECURITY AUDIT...<br>
+                > USER CREDENTIALS: INVALID/EXPIRED<br>
+                > LOCATION TRACKING: ACTIVE<br>
+                > PRIORITY LEVEL: HIGH<br>
+                > REQUEST ORIGIN: [REDACTED]<br>
+                > CONTACTING ADMINISTRATOR...<span class="cursor">_</span>
+            </div>
+        </div>
+        
+        <div class="login-prompt">
+            FOR ASSISTANCE, CONTACT YOUR LOCAL CAIN ADMINISTRATOR
+        </div>
+    </div>
+</body>
+</html>

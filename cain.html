@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="ru">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>CAIN</title>
+        <style>
+            body {
+                font-family: 'Courier New', monospace;
+                background-color: #000000;
+                color: #F8FCFE;
+                margin: 0;
+                padding: 0;
+                overflow-x: hidden;
+                --bg-noise: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4QgJDx0NV1/8LAAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAADtElEQVRo3u3YS0hUYRjH8d+ZHG0sy7tsJa2wLHRshTBCQyspKaQgWrnpoi6KLyVdRYs2tYwogggKiiggWnURiSiibpqKmJZXNLxMKkqalpnZRafFwXE8Z+Y8Ox7fHywGZv29vP/3nZlhGJRhGJWttpV9Q5QowzDYYRjsKjZEWZbFvGKQZUHGmMlRZ8OFYQYdSD+bWcUkZgJfGOQ8j3hWMMggtZSyiomsYDfwli5qecEgX/INsZFylvGU27znMO85xClOcI1ZPOMgNfwpBDKJJnbxkUaeMJlynrKJbrZwiwk00cYKGvmbL2QqVaxmNSfoopYNbKSOCj6xk6OsoYNKNvM9X8h85tFLFz2UMpXtPGIvj1nOI1Zyn8W0sYhb9OYLuUAlY7jNLD6zkPXsoYpWtnKPappZTRPz2EU7/+QDWcQNFtJOFTu5wwyusYRzLGCAfdzgX6ppYQbH+JUP5DrjGaaSdjZwlUvM5jxVXGMdF5lHM1OpsDR/mi3kHOVcoZKVdNHFVWZymmmcYiGnWcJZVtHBLOrpyxZykkGWcJlyPnCTWtqYzEVmc44KGplJB9XcYCBbSB2zucsAh5lJA03M5CHTaGI+d6jlFdXc5F+2kBqWs4FyXtPIOJpZxmPW0cg63rCDThbQwJtsIRUMUcYXhjibDOAZDZTxkg5K+c5rhvjOIH+yhYwjiEHGMkQZQ8B/KZulNRDvXs4AAAAASUVORK5CYII=');
+            }
+    
+            /* Кнопка назад */
+            .back-button {
+                position: fixed;
+                top: 20px;
+                left: 20px;
+                z-index: 1000;
+                background: rgba(10, 10, 10, 0.7);
+                border: 1px solid #9E00FD;
+                color: #F8FCFE;
+                padding: 8px 15px;
+                font-family: 'Courier New', monospace;
+                font-size: 14px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                text-decoration: none;
+            }
+    
+            .back-button:hover {
+                background: rgba(158, 0, 253, 0.3);
+                box-shadow: 0 0 10px rgba(158, 0, 253, 0.5);
+            }
+    
+            /* Анимированные надписи */
+            .cain-overlay {
+                position: fixed;
+                left: 0;
+                right: 0;
+                height: 150px;
+                background: linear-gradient(90deg, 
+                          rgba(0,0,0,0) 0%, 
+                          rgba(0,0,0,0.8) 20%, 
+                          rgba(0,0,0,0.8) 80%, 
+                          rgba(0,0,0,0) 100%);
+                z-index: 100;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                overflow: hidden;
+            }
+    
+            .cain-top {
+                top: 0;
+            }
+    
+            .cain-bottom {
+                bottom: 0;
+            }
+    
+            .cain-text {
+                color: rgba(255,255,255,0.15);
+                font-size: 24px;
+                letter-spacing: 10px;
+                white-space: nowrap;
+                animation: scroll 30s linear infinite;
+            }
+    
+            @keyframes scroll {
+                0% { transform: translateX(0%); }
+                100% { transform: translateX(-50%); }
+            }
+    
+            /* Остальные стили остаются как в предыдущем варианте */
+            .header {
+                text-align: center;
+                margin-bottom: 20px;
+                padding-top: 70px; /* Отступ для верхней надписи */
+                padding-bottom: 8px;
+                border-bottom: 1px solid #9E00FD;
+            }
+    
+            .agents-container {
+                padding: 20px;
+                padding-bottom: 70px; /* Отступ для нижней надписи */
+                max-width: 1400px;
+                margin: 0 auto;
+            }
+    
+            .agents-grid {
+                display: grid;
+                grid-template-columns: repeat(6, 1fr);
+                gap: 10px;
+            }
+            
+            .agent-card {
+                background: #0A0A0A;
+                border: 1px solid #2A2A2A;
+                padding: 10px;
+                text-align: center;
+                font-size: 0.8em;
+            }
+            
+            .agent-photo {
+                width: 150px;
+                height: 150px;
+                object-fit: cover;
+                border: 2px solid #9E00FD;
+                margin-bottom: 8px;
+                background-color: #111;
+                display: block;
+                margin-left: auto;
+                margin-right: auto;
+            }
+            
+            .agent-name {
+                color: #F8FCFE;
+                font-weight: bold;
+                margin: 3px 0;
+                font-size: em;
+            }
+            
+            .agent-cat {
+                color: #9E00FD;
+                margin: 3px 0;
+                font-size: 0.9em;
+            }
+            
+            .agent-stat {
+                margin: 5px 0;
+                line-height: 1.2;
+            }
+            
+            .stat-label {
+                color: #9E00FD;
+                display: block;
+                font-size: 0.8em;
+            }
+            
+            .stat-value {
+                color: #F8FCFE;
+                font-size: 0.9em;
+            }
+        </style>
+    </head>
+    <body>
+        <!-- Кнопка назад -->
+        <a href="cain-lp.html" class="back-button">← НАЗАД</a>
+        
+    <div class="cain-overlay cain-top">
+        <div class="cain-text">CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN</div>
+    </div>
+
+    <div class="cain-overlay cain-bottom">
+        <div class="cain-text">CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN CAIN</div>
+    </div>
+    <div class="header">
+        <h1>  </h1>
+    </div>
+    
+    <div class="agents-grid">
+        <!-- Агент 1 -->
+        <div class="agent-card">
+            <span class="stat-label">XID: ██████</span>
+            <img src="https://i.imgur.com/cRkTL9f.jpeg" class="agent-photo">
+            <div class="agent-name"><a href="cain-error.html" style="text-decoration: none; color: inherit;">ГЕННАДИЙ</a></div>
+            <div class="agent-cat">КАТ 4</div>
+            <div class="agent-stat">
+                <span class="stat-label">АГЕНДА</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+            <div class="agent-stat">
+                <span class="stat-label">СВЯТОТАТСТВО</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+        </div>
+        
+        <!-- Агент 2 -->
+        <div class="agent-card">
+            <span class="stat-label">XID: ██████</span>
+            <img src="https://i.imgur.com/NdATsAO.jpeg" class="agent-photo">
+            <div class="agent-name"><a href="cain-error.html" style="text-decoration: none; color: inherit;">АЛИЯ</a></div>
+            <div class="agent-cat">КАТ 4</div>
+            <div class="agent-stat">
+                <span class="stat-label">АГЕНДА</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+            <div class="agent-stat">
+                <span class="stat-label">СВЯТОТАТСТВО</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+        </div>
+        
+        <!-- Агент 3 -->
+        <div class="agent-card">
+            <span class="stat-label">XID:L19.3.6.20</span>
+            <img src="https://i.imgur.com/bDHjTIy.png" class="agent-photo">
+            <div class="agent-name"><a href="cain-error.html" style="text-decoration: none; color: inherit;">ЛУКА</a>
+            </div>
+            <div class="agent-cat">КАТ 3</div>
+            <div class="agent-stat">
+                <span class="stat-label">АГЕНДА</span>
+                <span class="stat-value">Лампада</span>
+            </div>
+            <div class="agent-stat">
+                <span class="stat-label">СВЯТОТАТСТВО</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+        </div>
+        
+        <!-- Агент 4 -->
+        <div class="agent-card">
+            <span class="stat-label">XID: ██████</span>
+            <img src="https://i.imgur.com/mLT5lR5.png" class="agent-photo">
+            <div class="agent-name"><a href="cain-error.html" style="text-decoration: none; color: inherit;">БРАЙН</a></div>
+            <div class="agent-cat">КАТ 3</div>
+            <div class="agent-stat">
+                <span class="stat-label">АГЕНДА</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+            <div class="agent-stat">
+                <span class="stat-label">СВЯТОТАТСТВО</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+        </div>
+        
+        <!-- Агент 5 -->
+        <div class="agent-card">
+            <span class="stat-label">XID: ██████</span>
+            <img src="https://i.imgur.com/ckTEbEw.png" class="agent-photo">
+            <div class="agent-name"><a href="cain-error.html" style="text-decoration: none; color: inherit;">ДЖО</a></div>
+            <div class="agent-cat">КАТ 1</div>
+            <div class="agent-stat">
+                <span class="stat-label">АГЕНДА</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+            <div class="agent-stat">
+                <span class="stat-label">СВЯТОТАТСТВО</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+        </div>
+        
+        <!-- Агент 6 -->
+        <div class="agent-card">
+            <span class="stat-label">XID: ██████</span>
+            <img src="https://i.imgur.com/aGdq0Cr.png" class="agent-photo">
+            <div class="agent-name"><a href="cain-error.html" style="text-decoration: none; color: inherit;">КЕЙСИ</a></div>
+            <div class="agent-cat">КАТ 2</div>
+            <div class="agent-stat">
+                <span class="stat-label">АГЕНДА</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+            <div class="agent-stat">
+                <span class="stat-label">СВЯТОТАТСТВО</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+        </div>
+        
+        <!-- Агент 7 -->
+        <div class="agent-card">
+            <span class="stat-label">XID: ██████</span>
+            <img src="https://i.imgur.com/mmmfa2j.jpeg" class="agent-photo">
+            <div class="agent-name"><a href="cain-error.html" style="text-decoration: none; color: inherit;">МАРИЯ  ███</a></div>
+            <div class="agent-cat">КАТ 1</div>
+            <div class="agent-stat">
+                <span class="stat-label">АГЕНДА</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+            <div class="agent-stat">
+                <span class="stat-label">СВЯТОТАТСТВО</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+        </div>
+        
+        <!-- Агент 8 -->
+        <div class="agent-card">
+            <span class="stat-label">XID: ██████</span>
+            <img src="https://i.imgur.com/ckTEbEw.png" class="agent-photo">
+            <div class="agent-name"><a href="cain-error.html" style="text-decoration: none; color: inherit;">ЭКЗОРЦИСТ</a>  ███</div>
+            <div class="agent-cat">КАТ 0</div>
+            <div class="agent-stat">
+                <span class="stat-label">АГЕНДА</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+            <div class="agent-stat">
+                <span class="stat-label">СВЯТОТАТСТВО</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+        </div>
+        
+        <!-- Агент 9 -->
+        <div class="agent-card">
+            <span class="stat-label">XID: ██████</span>
+            <img src="https://i.imgur.com/ckTEbEw.png" class="agent-photo">
+            <div class="agent-name"><a href="cain-error.html" style="text-decoration: none; color: inherit;">ЭКЗОРЦИСТ</a>  ███</div>
+            <div class="agent-cat">КАТ 0</div>
+            <div class="agent-stat">
+                <span class="stat-label">АГЕНДА</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+            <div class="agent-stat">
+                <span class="stat-label">СВЯТОТАТСТВО</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+        </div>
+        
+        <!-- Агент 10 -->
+        <div class="agent-card">
+            <span class="stat-label">XID: ██████</span>
+            <img src="https://i.imgur.com/ckTEbEw.png" class="agent-photo">
+            <div class="agent-name"><a href="cain-error.html" style="text-decoration: none; color: inherit;">ЭКЗОРЦИСТ</a>  ███</div>
+            <div class="agent-cat">КАТ 0</div>
+            <div class="agent-stat">
+                <span class="stat-label">АГЕНДА</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+            <div class="agent-stat">
+                <span class="stat-label">СВЯТОТАТСТВО</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+        </div>
+        
+        <!-- Агент 11 -->
+        <div class="agent-card">
+            <span class="stat-label">XID: ██████</span>
+            <img src="https://i.imgur.com/ckTEbEw.png" class="agent-photo">
+            <div class="agent-name"><a href="cain-error.html" style="text-decoration: none; color: inherit;">ЭКЗОРЦИСТ</a>  ███</div>
+            <div class="agent-cat">КАТ 0</div>
+            <div class="agent-stat">
+                <span class="stat-label">АГЕНДА</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+            <div class="agent-stat">
+                <span class="stat-label">СВЯТОТАТСТВО</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+        </div>
+        
+        <!-- Агент 12 -->
+        <div class="agent-card">
+            <span class="stat-label">XID: ██████</span>
+            <img src="https://i.imgur.com/ckTEbEw.png" class="agent-photo">
+            <div class="agent-name"><a href="cain-error.html" style="text-decoration: none; color: inherit;">ЭКЗОРЦИСТ</a>  ███</div>
+            <div class="agent-cat">КАТ 0</div>
+            <div class="agent-stat">
+                <span class="stat-label">АГЕНДА</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+            <div class="agent-stat">
+                <span class="stat-label">СВЯТОТАТСТВО</span>
+                <span class="stat-value"> ██████</span>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

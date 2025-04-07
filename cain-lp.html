@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAIN</title>
+    <!-- Подключаем шрифты -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Blaka&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #9E00FD;
+            --text: #F8FCFE;
+            --bg: #000;
+            --error: #FF3333;
+            --card-bg: #0d0d0d;
+            --border: #2a2a2a;
+            --bg-noise: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4QgJDx0NV1/8LAAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAADtElEQVRo3u3YS0hUYRjH8d+ZHG0sy7tsJa2wLHRshTBCQyspKaQgWrnpoi6KLyVdRYs2tYwogggKiiggWnURiSiibpqKmJZXNLxMKkqalpnZRafFwXE8Z+Y8Ox7fHywGZv29vP/3nZlhGJRhGJWttpV9Q5QowzDYYRjsKjZEWZbFvGKQZUHGmMlRZ8OFYQYdSD+bWcUkZgJfGOQ8j3hWMMggtZSyiomsYDfwli5qecEgX/INsZFylvGU27znMO85xClOcI1ZPOMgNfwpBDKJJnbxkUaeMJlynrKJbrZwiwk00cYKGvmbL2QqVaxmNSfoopYNbKSOCj6xk6OsoYNKNvM9X8h85tFLFz2UMpXtPGIvj1nOI1Zyn8W0sYhb9OYLuUAlY7jNLD6zkPXsoYpWNnKPappZTRPz2EU7/+QDWcQNFtJOFTu5wwyusYRzLGCAfdzgX6ppYQbH+JUP5DrjGaaSdjZwlUvM5jxVXGMdF5lHM1OpsDR/mi3kHOVcoZKVdNHFVWZymmmcYiGnWcJZVtHBLOrpyxZykkGWcJlyPnCTWtqYzEVmc44KGplJB9XcYCBbSB2zucsAh5lJA03M5CHTaGI+d6jlFdXc5F+2kBqWs4FyXtPIOJpZxmPW0cg63rCDThbQwJtsIRUMUcYXhjibDOAZDZTxkg5K+c5rhvjOIH+yhYwjiEHGMkQZQ8B/KZulNRDvXs4AAAAASUVORK5CYII=');
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Share Tech Mono', monospace;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* Эффекты помех */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0) 50%,
+                rgba(255, 255, 255, 0.02) 51%
+            );
+            background-size: 100% 4px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: var(--bg-noise);
+            opacity: 0.06;
+            z-index: -1;
+            animation: noise 0.8s infinite alternate;
+        }
+
+        @keyframes noise {
+            0% { background-position: 0 0; }
+            100% { background-position: 100% 100%; }
+        }
+
+        /* Основной контейнер меню */
+        .menu-container {
+            width: 90%;
+            max-width: 800px;
+            background-color: rgba(13, 13, 13, 0.8);
+            border: 1px solid var(--border);
+            box-shadow: 0 0 30px rgba(158, 0, 253, 0.2);
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Заголовок системы */
+        .system-header {
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .system-header::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+            animation: headerScan 3s linear infinite;
+        }
+
+        @keyframes headerScan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .system-title {
+            font-family: 'Blaka', cursive;
+            font-size: 3.5rem;
+            color: var(--accent);
+            text-align: center;
+            margin: 0;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(158, 0, 253, 0.7);
+        }
+
+        .system-subtitle {
+            font-size: 0.9rem;
+            text-align: center;
+            margin-top: 0.5rem;
+            opacity: 0.7;
+            letter-spacing: 2px;
+        }
+
+        /* Пункты меню */
+        .menu-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-top: 2rem;
+        }
+
+        .menu-item {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+        }
+
+        .menu-item:hover {
+            border-color: var(--accent);
+            box-shadow: 0 0 20px rgba(158, 0, 253, 0.15);
+            transform: translateY(-5px);
+        }
+
+        .menu-item-title {
+            font-size: 1.5rem;
+            color: var(--accent);
+            margin: 0 0 0.5rem 0;
+            font-weight: normal;
+        }
+
+        .menu-item-code {
+            font-size: 0.8rem;
+            opacity: 0.7;
+            margin-bottom: 1rem;
+            display: block;
+        }
+
+        .menu-item-desc {
+            font-size: 0.85rem;
+            margin: 0;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
+
+        /* Статусная строка */
+        .status-bar {
+            margin-top: 3rem;
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+            opacity: 0.6;
+        }
+
+        .status-field {
+            display: flex;
+            align-items: center;
+        }
+
+        .status-field::before {
+            content: ">";
+            margin-right: 0.5rem;
+            color: var(--accent);
+        }
+
+        /* Эффект загрузки */
+        @keyframes flicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { opacity: 1; }
+            20%, 22%, 24%, 55% { opacity: 0.5; }
+        }
+
+        .loading {
+            animation: flicker 5s infinite;
+        }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+    <div class="noise-overlay"></div>
+    
+    <div class="menu-container loading">
+        <div class="system-header">
+            <h1 class="system-title">CAIN</h1>
+            <div class="system-subtitle">CORPORATE ACCESS INTERFACE NETWORK</div>
+        </div>
+
+        <div class="menu-items">
+            <div class="menu-item">
+                <h2 class="menu-item-title"><a href="cain.html" style="text-decoration: none; color: inherit;">ЭКЗОРЦИСТЫ</a></h2>
+                <span class="menu-item-code">ID: C-0080</span>
+                <p class="menu-item-desc">███ ███████ ███ ██████ █████ ████████</p>
+            </div>
+        
+            <div class="menu-item">
+                <h2 class="menu-item-title"><a href="cain-shop.html" style="text-decoration: none; color: inherit;">КАТАЛОГ</a></h2>
+                <span class="menu-item-code">ID: C-9880</span>
+                <p class="menu-item-desc">████ ███ ████████ █████ ██ █████████</p>
+            </div>
+        
+            <div class="menu-item">
+                <h2 class="menu-item-title"><a href="cain-error.html" style="text-decoration: none; color: inherit;">АРХИВ</a></h2>
+                <span class="menu-item-code">ID: C-0000</span>
+                <p class="menu-item-desc">██████ █████ ██ ███████ ████ ██████</p>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <div class="status-field">ВЕРСИЯ СИСТЕМЫ: 0.0.7.0</div>
+            <div class="status-field">СТАТУС: АКТИВЕН</div>
+            <div class="status-field">ПОЛНЫЙ ДОСТУП ███████</div>
+        </div>
+    </div>
+</body>
+</html>
