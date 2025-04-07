@@ -315,10 +315,13 @@ body {
 
 .cart-form {
     margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px; /* Заменяет margin-bottom для form-group */
 }
 
 .form-group {
-    margin-bottom: 12px;
+    margin-bottom: 0; /* Убираем отступ, так как используем gap в cart-form */
 }
 
 .form-group label {
@@ -336,20 +339,11 @@ body {
     color: var(--text);
     font-family: 'Courier New', monospace;
     font-size: 0.9em;
+    box-sizing: border-box;
 }
 
 .form-group input:focus {
     outline: 2px solid var(--accent);
-}
-
-.cart-items {
-    max-height: 200px;
-    overflow-y: auto;
-    margin-bottom: 15px;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 15px;
-    scrollbar-width: thin;
-    scrollbar-color: var(--accent) var(--border);
 }
 
 .cart-items::-webkit-scrollbar {
