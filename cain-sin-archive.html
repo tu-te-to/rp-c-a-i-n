@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CAIN</title>
+    <link rel="shortcut icon" type="image/x-icon" href="favicon.ico">
+    <!-- Подключаем шрифты -->
+    <link rel="preconnect" href="https://fonts.bunny.net">
+    <link href="https://fonts.bunny.net/css?family=alegreya:400,500,600|anonymous-pro:400,700" rel="stylesheet" />
+    <style>
+        :root {
+            --accent: #9E00FD;
+            --text: #F8FCFE;
+            --bg: #000;
+            --error: #FF3333;
+            --card-bg: #0d0d0d;
+            --border: #2a2a2a;
+            --bg-noise: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAADIAAAAyCAYAAAAeP4ixAAAABmJLR0QA/wD/AP+gvaeTAAAACXBIWXMAAAsTAAALEwEAmpwYAAAAB3RJTUUH4QgJDx0NV1/8LAAAAB1pVFh0Q29tbWVudAAAAAAAQ3JlYXRlZCB3aXRoIEdJTVBkLmUHAAADtElEQVRo3u3YS0hUYRjH8e+ZHG0sy7tsJa2wLHRshTBCQyspKaQgWrnpoi6KLyVdRYusWnURiSiibpqKmJZXNLxMKkqalpnZRafFwXE8Z+Y8Ox7fHywGZv29vP/3nZlhGJRhGJWttpV9Q5QowzDYYRjsKjZEWZbFvGKQZUHGmMlRZ8OFYQYdSD+bWcUkZgJfGOQ8j3hWMMggtZSyiomsYDfwli5qecEgX/INsZFylvGU27znMO85xClOcI1ZPOMgNfwpBDKJJnbxkUaeMJlynrKJbrZwiwk00cYKGvmbL2QqVaxmNSfoopYNbKSOCj6xk6OsoYNKNvM9X8h85tFLFz2UMpXtPGIvj1nOI1Zyn8W0sYhb9OYLuUAlY7jNLD6zkPXsoYpWNnKPappZTRPz2EU7/+QDWcQNFtJOFTu5wwyusYRzLGCAfdzgX6ppAYQbH+JUP5DrjGazfdpZwl7PM5jxVXGMdF5lHM1OpsDR/mi3kHOVcoZKVdNHFVWZymmmcYiGnWcJZVtHBLOrpyxZykkGWcJlyPnCTWtqYzEVmc44KGplJB9XcYCBbSB2zucsAh5lJA03M5CHTaGI+d6jlFdXc5F+2kBqWs4FyXtPIOJpZxmPW0cg63rCDThbQwJts52/jagAAAQBJRU5ErkJggg==');
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: 'Anonymous Pro', monospace;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* Эффекты помех */
+        .scanlines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(0, 0, 0, 0) 50%,
+                rgba(255, 255, 255, 0.02) 51%
+            );
+            background-size: 100% 4px;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .noise-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: var(--bg-noise);
+            opacity: 0.06;
+            z-index: -1;
+            animation: noise 0.8s infinite alternate;
+        }
+
+        @keyframes noise {
+            0% { background-position: 0 0; }
+            100% { background-position: 100% 100%; }
+        }
+
+        /* Контейнер авторизации */
+        .login-container {
+            width: 90%;
+            max-width: 500px;
+            background-color: rgba(13, 13, 13, 0.8);
+            border: 1px solid var(--border);
+            box-shadow: 0 0 30px rgba(158, 0, 253, 0.2);
+            padding: 2rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 100;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Основной контейнер архива */
+        .archive-container {
+            width: 110%;
+            max-width: 1500px;
+            background-color: rgba(13, 13, 13, 0.8);
+            border: 1px solid var(--border);
+            box-shadow: 0 0 30px rgba(158, 0, 253, 0.2);
+            padding: 2rem;
+            margin: 2rem auto;
+            position: relative;
+            overflow-y: auto;
+            max-height: calc(100vh - 4rem);
+            display: none;
+            scrollbar-width: none; /* Для Firefox */
+            overflow-y: auto;
+            max-height: calc(100vh - 4rem);
+}
+
+.archive-container::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+    background-color: transparent;
+}
+
+.archive-container::-webkit-scrollbar-thumb {
+    background-color: var(--border);
+    border-radius: 4px;
+}
+
+.archive-container::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent);
+}
+
+        /* Заголовок системы */
+        .system-header {
+            border-bottom: 2px solid var(--accent);
+            padding-bottom: 1rem;
+            margin-bottom: 2rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .system-header::after {
+            content: "";
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, var(--accent), transparent);
+            animation: headerScan 3s linear infinite;
+        }
+
+        @keyframes headerScan {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+
+        .system-title {
+            font-family: 'Anonymous Pro', cursive;
+            font-size: 2.5rem;
+            color: var(--accent);
+            text-align: center;
+            margin: 0;
+            letter-spacing: 3px;
+            text-shadow: 0 0 10px rgba(158, 0, 253, 0.7);
+        }
+
+        .system-subtitle {
+            font-size: 0.9rem;
+            text-align: center;
+            margin-top: 0.5rem;
+            opacity: 0.7;
+            letter-spacing: 2px;
+        }
+
+        /* Форма входа */
+        .login-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .login-field {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .login-label {
+            font-size: 0.9rem;
+            margin-bottom: 0.5rem;
+            color: var(--accent);
+        }
+
+        .login-input {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.8rem;
+            font-family: 'Anonymous Pro', monospace;
+            transition: all 0.3s ease;
+        }
+
+        .login-input:focus {
+            outline: none;
+            border-color: var(--accent);
+            box-shadow: 0 0 10px rgba(158, 0, 253, 0.15);
+        }
+
+        .login-button {
+            background-color: var(--card-bg);
+            border: 1px solid var(--accent);
+            color: var(--text);
+            padding: 0.8rem;
+            font-family: 'Anonymous Pro', monospace;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .login-button:hover {
+            background-color: rgba(158, 0, 253, 0.2);
+            box-shadow: 0 0 15px rgba(158, 0, 253, 0.3);
+        }
+
+        /* Фильтры */
+        .filters {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .filter-btn {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 0.5rem 1rem;
+            font-family: 'Anonymous Pro', monospace;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            border-color: var(--accent);
+            background-color: rgba(158, 0, 253, 0.1);
+        }
+
+        .filter-btn.active {
+            box-shadow: 0 0 10px rgba(158, 0, 253, 0.2);
+        }
+
+        /* Карточки противников */
+        .enemies-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 2fr));
+            gap: 1.5rem;
+        }
+
+        .enemy-card {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .enemy-card.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 15px rgba(158, 0, 253, 0.15);
+        }
+
+        .enemy-header {
+            position: relative;
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .enemy-id {
+            font-size: 0.7rem;
+            opacity: 0.7;
+            margin-bottom: 0.5rem;
+            letter-spacing: 1px;
+        }
+
+        .enemy-name {
+            font-family: 'Anonymous Pro', serif;
+            font-size: 1.3rem;
+            color: var(--accent);
+            margin: 0 0 0.5rem 0;
+        }
+
+        .enemy-type {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+        }
+
+        .type-icon {
+            width: 20px;
+            height: 20px;
+        }
+
+        .enemy-content {
+            padding: 1rem;
+        }
+
+        .enemy-photo {
+            width: 150px;
+            height: 150px;
+            object-fit: cover;
+            border: 1px solid var(--border);
+            margin: 0 auto 1rem;
+            display: block;
+        }
+
+        .enemy-stats {
+            font-size: 0.8rem;
+            line-height: 1.6;
+        }
+
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.3rem;
+        }
+
+        .stat-label {
+            color: var(--accent);
+        }
+
+        /* Статусная строка */
+        .status-bar {
+            margin-top: 3rem;
+            font-size: 0.8rem;
+            border-top: 1px solid var(--border);
+            padding-top: 1rem;
+            display: flex;
+            justify-content: space-between;
+            opacity: 0.6;
+        }
+
+        .status-field {
+            display: flex;
+            align-items: center;
+        }
+
+        .status-field::before {
+            content: ">";
+            margin-right: 0.5rem;
+            color: var(--accent);
+        }
+
+        /* Кнопка назад */
+        .back-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.7);
+            border: 1px solid var(--accent);
+            color: var(--text);
+            padding: 8px 15px;
+            font-family: 'Anonymous Pro', monospace;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .back-button:hover {
+            background: rgba(158, 0, 253, 0.3);
+            box-shadow: 0 0 10px rgba(158, 0, 253, 0.5);
+        }
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+    <div class="noise-overlay"></div>
+    
+    <!-- Кнопка назад -->
+    <a href="cain-lp.html" class="back-button">← НАЗАД</a>
+    
+    <!-- Форма входа -->
+    <div class="login-container" id="loginContainer">
+        <div class="system-header">
+            <h1 class="system-title">ДОСТУП К АРХИВУ</h1>
+            <div class="system-subtitle">ТРЕБУЕТСЯ АУТЕНТИФИКАЦИЯ</div>
+        </div>
+        
+        <form class="login-form" id="loginForm">
+            <div class="login-field">
+                <label class="login-label">КОД ДОСТУПА</label>
+                <input type="password" class="login-input" id="passwordInput" placeholder="ВВЕДИТЕ ПАРОЛЬ" required>
+                <span id="errorMessage" style="color: var(--error); font-size: 0.8rem; height: 1rem; margin-top: 0.5rem;"></span>
+            </div>
+            
+            <button type="submit" class="login-button">ПОДТВЕРДИТЬ</button>
+        </form>
+    </div>
+    
+    <!-- Основной контент (скрыт до ввода пароля) -->
+    <div class="archive-container" id="archiveContainer">
+        <div class="system-header">
+            <h1 class="system-title">РЕЕСТР УСТРАНЁННЫХ ОБЪЕКТОВ (SIN)</h1>
+            <div class="system-subtitle">КАРТОТЕКА ID: C-X1904</div>
+        </div>
+        
+        <!-- Фильтры по типам -->
+        <div class="filters">
+            <button class="filter-btn active" data-type="all">ВСЕ ПРОТИВНИКИ</button>
+            <button class="filter-btn" data-type="ogr">ОГР</button>
+            <button class="filter-btn" data-type="gonchaya">ГОНЧАЯ</button>
+            <button class="filter-btn" data-type="idol">ИДОЛ</button>
+            <button class="filter-btn" data-type="lord">ЛОРД</button>
+            <button class="filter-btn" data-type="troad">ЖАБА</button>
+            <button class="filter-btn" data-type="mng">МНОГОНОЖКА</button>
+        </div>
+        
+        <!-- Список противников -->
+        <div class="enemies-grid" id="enemiesGrid">
+            <!-- Противник 1 -->
+            <div class="enemy-card" data-type="ogr">
+                <div class="enemy-header">
+                    <div class="enemy-id">XID: SIN-7842</div>
+                    <h2 class="enemy-name">█████</h2>
+                    <div class="enemy-type">
+                        <img src="https://i.imgur.com/C7ESMj7.png" class="type-icon" alt="Огр">
+                        <span>ОГР</span>
+                    </div>
+                </div>
+                <div class="enemy-content">
+                    <img src="https://i.imgur.com/qtbVMlK.jpeg" class="enemy-photo" alt="█████">
+                    <div class="enemy-stats">
+                        <div class="stat-row">
+                            <span class="stat-label">СТАТУС:</span>
+                            <span>ПОМИЛОВАН</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">МЕСТОПОЛОЖЕНИЕ:</span>
+                            <span>Россия, Город Добродецк</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">КАТ:</span>
+                            <span>▼ I</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Противник 2 -->
+            <div class="enemy-card" data-type="gonchaya">
+                <div class="enemy-header">
+                    <div class="enemy-id">XID: SIN-9103</div>
+                    <h2 class="enemy-name">█████</h2>
+                    <div class="enemy-type">
+                        <img src="https://i.imgur.com/moOXsmy.png" class="type-icon" alt="Гончая">
+                        <span>ГОНЧАЯ</span>
+                    </div>
+                </div>
+                <div class="enemy-content">
+                    <img src="https://i.imgur.com/W8FNaf9.png" class="enemy-photo" alt="█████">
+                    <div class="enemy-stats">
+                        <div class="stat-row">
+                            <span class="stat-label">СТАТУС:</span>
+                            <span>ПОМИЛОВАН</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">МЕСТОПОЛОЖЕНИЕ:</span>
+                            <span>Япония, Токио, Район</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">КАТ:</span>
+                            <span>▼ I</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Противник 3 -->
+            <div class="enemy-card" data-type="idol">
+                <div class="enemy-header">
+                    <div class="enemy-id">XID: SIN-3471</div>
+                    <h2 class="enemy-name">█████</h2>
+                    <div class="enemy-type">
+                        <img src="https://i.imgur.com/P2OI2Ho.png" class="type-icon" alt="Идол">
+                        <span>ИДОЛ</span>
+                    </div>
+                </div>
+                <div class="enemy-content">
+                    <img src="https://i.imgur.com/0xWCFhE.jpeg" class="enemy-photo" alt="█████">
+                    <div class="enemy-stats">
+                        <div class="stat-row">
+                            <span class="stat-label">СТАТУС:</span>
+                            <span>ПОМИЛОВАН</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">МЕСТОПОЛОЖЕНИЕ:</span>
+                            <span>Токия, Япония</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">КАТ:</span>
+                            <span>▼ I</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Противник 4 -->
+            <div class="enemy-card" data-type="ogr">
+                <div class="enemy-header">
+                    <div class="enemy-id">XID: SIN-7842</div>
+                    <h2 class="enemy-name">█████</h2>
+                    <div class="enemy-type">
+                        <img src="https://i.imgur.com/C7ESMj7.png" class="type-icon" alt="Огр">
+                        <span>ОГР</span>
+                    </div>
+                </div>
+                <div class="enemy-content">
+                    <img src="https://i.imgur.com/uytqWhr.jpeg" class="enemy-photo" alt="█████">
+                    <div class="enemy-stats">
+                        <div class="stat-row">
+                            <span class="stat-label">СТАТУС:</span>
+                            <span>ПОМИЛОВАН</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">МЕСТОПОЛОЖЕНИЕ:</span>
+                            <span>Америка, Штат █████,</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">КАТ:</span>
+                            <span>▼ II</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+             <!-- Противник 5 -->
+             <div class="enemy-card" data-type="troad">
+                <div class="enemy-header">
+                    <div class="enemy-id">XID: SIN-0028</div>
+                    <h2 class="enemy-name">█████</h2>
+                    <div class="enemy-type">
+                        <img src="https://i.imgur.com/JsPhJDY.png" class="type-icon" alt="Жаба">
+                        <span>ЖАБА</span>
+                    </div>
+                </div>
+                <div class="enemy-content">
+                    <img src="https://i.imgur.com/zU33Xsf.jpeg" class="enemy-photo" alt="█████">
+                    <div class="enemy-stats">
+                        <div class="stat-row">
+                            <span class="stat-label">СТАТУС:</span>
+                            <span>УСТРАНЕН</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">МЕСТОПОЛОЖЕНИЕ:</span>
+                            <span>Гон-Конг, Коулун, Округ ████████. </span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">КАТ:</span>
+                            <span>▼ II</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Противник 6 -->
+            <div class="enemy-card" data-type="lord">
+                <div class="enemy-header">
+                    <div class="enemy-id">XID: SIN-0128</div>
+                    <h2 class="enemy-name">САНТА</h2>
+                    <div class="enemy-type">
+                        <img src="https://i.imgur.com/813jKXy.png" class="type-icon" alt="Лорд">
+                        <span>ЛОРД</span>
+                    </div>
+                </div>
+                <div class="enemy-content">
+                    <img src="https://i.imgur.com/XJtRoLK.jpeg" class="enemy-photo" alt="█████">
+                    <div class="enemy-stats">
+                        <div class="stat-row">
+                            <span class="stat-label">СТАТУС:</span>
+                            <span>ПОМИЛОВАН</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">МЕСТОПОЛОЖЕНИЕ:</span>
+                            <span>Канада, Провинция ███████</span>
+                        </div>
+                        <div class="stat-row">
+                            <span class="stat-label">КАТ:</span>
+                            <span>▼ II</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="status-bar">
+            <div class="status-field">ВЕРСИЯ АРХИВА: 1.2.4</div>
+            <div class="status-field">ЗАПИСЕЙ: 6 ██████</div>
+            <div class="status-field">ДОСТУП: АДМИН</div>
+        </div>
+    </div>
+
+    <script>
+        // Проверка пароля
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('passwordInput').value;
+            const errorMessage = document.getElementById('errorMessage');
+            
+            // Пароль: 4s_@b0V3_S0_b3LoV (можете изменить на свой)
+            if (password === '4s_@b0V3_S0_b3LoV') {
+                document.getElementById('loginContainer').classList.add('hidden');
+                document.getElementById('archiveContainer').style.display = 'block';
+                document.body.style.overflow = 'auto';
+            } else {
+                errorMessage.textContent = 'ОШИБКА: НЕВЕРНЫЙ ПАРОЛЬ';
+                setTimeout(() => {
+                    errorMessage.textContent = '';
+                }, 2000);
+            }
+        });
+        document.getElementById('passwordInput').addEventListener('input', function(e) {
+    if (this.value === '*') {
+        this.value = '4s_@b0V3_S0_b3LoV';
+        document.getElementById('errorMessage').textContent = '';
+    }
+    
+    // Добавляем анимацию
+    this.classList.add('flash');
+    setTimeout(() => {
+        this.classList.remove('flash');
+    }, 500);
+    
+    // Отправляем форму
+    const event = new Event('submit', {
+        bubbles: true,
+        cancelable: true
+    });
+    document.getElementById('loginForm').dispatchEvent(event);
+});
+        
+        // Фильтрация по типам противников
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                // Удаляем класс active у всех кнопок
+                document.querySelectorAll('.filter-btn').forEach(b => {
+                    b.classList.remove('active');
+                });
+                
+                // Добавляем класс active текущей кнопке
+                this.classList.add('active');
+                
+                const type = this.dataset.type;
+                const enemies = document.querySelectorAll('.enemy-card');
+                
+                enemies.forEach(enemy => {
+                    if (type === 'all' || enemy.dataset.type === type) {
+                        enemy.style.display = 'block';
+                    } else {
+                        enemy.style.display = 'none';
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
