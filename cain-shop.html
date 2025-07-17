@@ -439,7 +439,24 @@ body {
 .remove-from-cart:hover {
     opacity: 0.8;
 }
+.upgrade-btn {
+    background-color: var(--accent);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    cursor: pointer;
+    font-family: 'Courier New', monospace;
+    transition: all 0.2s;
+}
 
+.upgrade-btn:hover {
+    background-color: #7d00c7;
+}
+
+.upgrade-btn:disabled {
+    background-color: var(--border);
+    cursor: not-allowed;
+}
 /* Адаптивность */
 @media (max-width: 768px) {
     .shop-wrapper {
@@ -555,6 +572,7 @@ body {
             <div class="tab" data-tab="comfort">КОМФОРТ/КАРЬЕРА</div>
             <div class="tab" data-tab="property">ИМУЩЕСТВО</div>
             <div class="tab" data-tab="occult">ОККУЛЬТНЫЙ/МЕД.</div>
+            <div class="tab" data-tab="weapons">ОРУЖИЕ</div>
         </div>
         
         <!-- Содержимое вкладок -->
@@ -1112,6 +1130,33 @@ body {
                 </div>
             </div>
         </div>
+
+        <div id="weapons" class="tab-content">
+    <div class="warning-note" style="margin-bottom: 30px;">
+        <p>Арсенал вооружения создаваемое и обслуживаемое оружейной службой ЗАМКА.<br>
+        Некоторые импровизируются в поле.<br><br>
+        Вы можете свободно выбирать эстетику своего табельного вооружения. <strong>Они начинают с 0 КАТ</strong>.<br> 
+        Вы можете <strong>усилить оба оружия на +1 КАТ</strong> потратив <strong>3 скрипа</strong>, до максимума <strong>3 КАТ</strong>.<br><br>
+        Всё это оружие было сделано с любовью для убийства грехов.<br>
+        <em>ОХОТНИК НИЧЕГО НЕ ЛЮБИТ</em></p>
+    </div>
+
+    <div style="display: flex; gap: 20px; justify-content: center; flex-wrap: wrap;">
+        <!-- Первое оружие -->
+        <div style="text-align: center;">
+            <h3 style="color: var(--accent);">ПЕРВОЕ ОРУЖИЕ</h3>
+            <p>Текущий КАТ: <span id="weapon1-kat">0</span></p>
+            <button class="upgrade-btn" data-weapon="1">Улучшить (+1 КАТ: 3 █$█)</button>
+        </div>
+
+        <!-- Второе оружие -->
+        <div style="text-align: center;">
+            <h3 style="color: var(--accent);">ВТОРОЕ ОРУЖИЕ</h3>
+            <p>Текущий КАТ: <span id="weapon2-kat">0</span></p>
+            <button class="upgrade-btn" data-weapon="2">Улучшить (+1 КАТ: 3 █$█)</button>
+        </div>
+    </div>
+</div>
         
         <script>
             // Корзина
@@ -1156,6 +1201,31 @@ body {
                     updateCart();
                 });
             });
+
+            // Хранение текущих КАТ
+let weaponKAT = [0, 0]; // weaponKAT[0] - первое оружие, weaponKAT[1] - второе
+
+document.querySelectorAll('.upgrade-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        const weaponNum = parseInt(this.dataset.weapon) - 1;
+        
+        if (weaponKAT[weaponNum] >= 3) {
+            alert(`Оружие ${weaponNum+1} уже имеет максимальный КАТ (3)`);
+            return;
+        }
+        
+        // Добавляем в корзину
+        cart.push({
+            name: `Улучшение оружия ${weaponNum+1} до КАТ ${weaponKAT[weaponNum]+1}`,
+            price: 3
+        });
+        
+        // Обновляем отображение
+        weaponKAT[weaponNum]++;
+        document.getElementById(`weapon${weaponNum+1}-kat`).textContent = weaponKAT[weaponNum];
+        updateCart();
+    });
+});
             
             // Обновление корзины
             function updateCart() {
